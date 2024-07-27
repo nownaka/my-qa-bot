@@ -19,6 +19,9 @@ param botDisplayName string
 param botSku string = 'F0'
 param entraAppClientId string
 
+// User Assigned Identity
+param userAssignedIdentityName string = 'id-${systemName}-${environment}-${suffix}'
+
 /*============================================================================
   Resources
 ============================================================================*/
@@ -39,6 +42,7 @@ module webApp './appService/webApp.bicep' = {
     name: webAppName
     location: location
     appServicePlanId: appServicePlan.outputs.id
+    userAssignedIdentityId: userAssignedIdentity.outputs.id
   }
 }
 
@@ -51,5 +55,14 @@ module botService 'botService.bicep' = {
     displayName: botDisplayName
     entraAppClientId: entraAppClientId
     sku: botSku
+  }
+}
+
+// User Assigned Identity
+module userAssignedIdentity 'userAssignedIdentity.bicep' = {
+  name: 'Deploy_${userAssignedIdentityName}'
+  params: {
+    name: userAssignedIdentityName
+    location: location
   }
 }
