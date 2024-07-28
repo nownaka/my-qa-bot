@@ -70,8 +70,9 @@ server.listen(process.env.port || process.env.PORT || 3978, () => {
 });
 
 // Listen for incoming requests.
-server.post("/api/messages", async (req, res) => {
+server.post("/api/messages", async (req, res, next) => {
   await adapter.process(req, res, async (context) => {
     await bot.run(context);
   });
+  next();
 });
