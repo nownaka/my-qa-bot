@@ -15,6 +15,9 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
   location: location
   properties: {
     serverFarmId: appServicePlanId
+    siteConfig: {
+      linuxFxVersion: 'NODE|18-lts'
+    }
   }
   identity: {
     type: 'UserAssigned'
