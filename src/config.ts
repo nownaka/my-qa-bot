@@ -12,4 +12,10 @@ export const config = {
     id: checkEnvValue("ENTRA_APP_CLIENT_ID"),
     secret: checkEnvValue("ENTRA_APP_SECRET"),
   },
+  openAI: {
+    apiKey: checkEnvValue("OPENAI_API_KEY"),
+    models: {
+      chat: checkEnvValue("OPENAI_MODEL_CHAT"),
+    },
+  },
 };
