@@ -5,6 +5,7 @@ param location string
 param name string
 param appServicePlanId string
 param userAssignedIdentityId string
+param appSettings array = []
 
 /*============================================================================
   Resources
@@ -17,6 +18,7 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
     serverFarmId: appServicePlanId
     siteConfig: {
       linuxFxVersion: 'NODE|18-lts'
+      appSettings: appSettings
     }
   }
   identity: {
