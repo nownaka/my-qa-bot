@@ -48,6 +48,9 @@ param databaseName string = systemName
 // containers
 param containerNames array = ['chatHistory']
 
+/* storage account */
+param storageAccountName string = 'st${systemName}${environment}${suffix}'
+
 /*============================================================================
   Resources
 ============================================================================*/
@@ -167,3 +170,17 @@ module containers 'documentDB/containers.bicep' = [for name in containerNames: {
     database
   ]
 }]
+
+/* storage*/
+module storageAccount 'storage/storageAccounts.bicep' = {
+  name: 'Deploy_${storageAccountName}'
+  params: {
+    name: storageAccountName
+    location: location
+  }
+}
+
+/*============================================================================
+  Outputs
+============================================================================*/
+output STORAGE_ACCOUNT_NAME string = storageAccount.outputs.name
