@@ -1,4 +1,4 @@
-using 'myQABot.bicep'
+using 'main.bicep'
 
 param systemName = readEnvironmentVariable('SYSTEM_NAME')
 param environment = readEnvironmentVariable('ENVIRONMENT')
