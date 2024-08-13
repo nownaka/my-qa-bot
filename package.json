@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
+    "@azure/identity": "^4.4.1",
     "botbuilder": "^4.22.3",
     "openai": "^4.54.0",
     "restify": "^11.1.0"
