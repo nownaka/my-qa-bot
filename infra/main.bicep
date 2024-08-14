@@ -52,6 +52,13 @@ param containerNames array = ['chatHistory']
 param storageAccountName string = 'st${systemName}${environment}${suffix}'
 
 /*============================================================================
+  Variables
+============================================================================*/
+var role = {
+  CosmosDBBuiltInDataContributor: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000002'
+}
+
+/*============================================================================
   Resources
 ============================================================================*/
 // app service plan
@@ -71,7 +78,7 @@ module webApp './appService/webApp.bicep' = {
     name: webAppName
     location: location
     appServicePlanId: appServicePlan.outputs.id
-    userAssignedIdentityId: userAssignedIdentity.outputs.id
+    userAssignedIdentityId: userAssignedIdentity.outputs.resourceId
     appSettings: [
       {
         name: 'WEBSITE_NODE_DEFAULT_VERSION'
@@ -143,6 +150,12 @@ module databaseAccount 'documentDB/databaseAccount.bicep' = {
     location: location
     isEnabledFreeTier: cosmosDBIsEnabledFreeTier
     locations: cosmosDBDatabaseAccountLocations
+    roleAssignmentConfigs: [
+      {
+        principalId: userAssignedIdentity.outputs.principalId
+        roleDefinitionId: role.CosmosDBBuiltInDataContributor
+      }
+    ]
   }
 }
 
