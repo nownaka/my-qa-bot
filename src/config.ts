@@ -18,4 +18,10 @@ export const config = {
       chat: checkEnvValue("OPENAI_MODEL_CHAT"),
     },
   },
+  cosmosDB: {
+    endpoint: checkEnvValue("COSMOSDB_ENDPOINT"),
+    databaseName: checkEnvValue("COSMOSDB_DATABASE_NAME"),
+    containerName: checkEnvValue("COSMOSDB_CONTAINER_NAME"),
+    includesRecords: Number(process.env.COSMOSDB_INCLUDE_CHAT_RECORDS) || 6,
+  },
 };
