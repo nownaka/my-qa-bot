@@ -18,14 +18,11 @@ param webAppName string = 'app-${systemName}-${suffix}'
 @secure()
 param openAIApiKey string
 param openAIChatModel string
-@secure()
-param entraAppClientSecret string
 
 // bot service
 param botName string = 'bot-${systemName}-${environment}-${suffix}'
 param botDisplayName string
 param botSku string = 'F0'
-param entraAppClientId string
 
 // User Assigned Identity
 param userAssignedIdentityName string = 'id-${systemName}-${environment}-${suffix}'
@@ -89,14 +86,6 @@ module webApp './appService/webApp.bicep' = {
         value: '1'
       }
       {
-        name: 'ENTRA_APP_CLIENT_ID'
-        value: entraAppClientId
-      }
-      {
-        name: 'ENTRA_APP_SECRET'
-        value: entraAppClientSecret
-      }
-      {
         name: 'OPENAI_API_KEY'
         value: openAIApiKey
       }
@@ -109,12 +98,20 @@ module webApp './appService/webApp.bicep' = {
         value: databaseAccount.outputs.endpoint
       }
       {
-        name: 'COSMOSDB_KEY'
-        value: listkeys(resourceId('Microsoft.DocumentDB/databaseAccounts', databaseAccountName), '2024-05-15').primaryMasterKey
+        name: 'COSMOSDB_DATABASE_NAME'
+        value: databaseName
       }
       {
         name: 'COSMOSDB_CONTAINER_NAME'
         value: containerNames[0]
+      }
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: userAssignedIdentity.outputs.clientId
+      }
+      {
+        name: 'AZURE_TENANT_ID'
+        value: userAssignedIdentity.outputs.tenantId
       }
     ]
   }
@@ -127,7 +124,9 @@ module botService 'botService.bicep' = {
     name: botName
     botAppDomain: webApp.outputs.defaultHostName
     displayName: botDisplayName
-    entraAppClientId: entraAppClientId
+    msaAppId: userAssignedIdentity.outputs.clientId
+    msaAppMSIResourceId:userAssignedIdentity.outputs.resourceId
+    msaAppTenantId: userAssignedIdentity.outputs.tenantId
     sku: botSku
   }
 }
@@ -196,4 +195,6 @@ module storageAccount 'storage/storageAccounts.bicep' = {
 /*============================================================================
   Outputs
 ============================================================================*/
+output AZURE_CLIENT_ID string = userAssignedIdentity.outputs.clientId
+output AZURE_TENANT_ID string = userAssignedIdentity.outputs.tenantId
 output STORAGE_ACCOUNT_NAME string = storageAccount.outputs.name

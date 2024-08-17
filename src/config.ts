@@ -8,10 +8,8 @@ const checkEnvValue = (envName: string): string => {
 };
 
 export const config = {
-  bot: {
-    id: checkEnvValue("ENTRA_APP_CLIENT_ID"),
-    secret: checkEnvValue("ENTRA_APP_SECRET"),
-  },
+  azureClientId: checkEnvValue("AZURE_CLIENT_ID"),
+  azureTenantId: checkEnvValue("AZURE_TENANT_ID"),
   openAI: {
     apiKey: checkEnvValue("OPENAI_API_KEY"),
     models: {

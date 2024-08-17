@@ -17,9 +17,9 @@ import { config } from "./config";
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
 const credentialsFactory = new ConfigurationServiceClientCredentialFactory({
-  MicrosoftAppId: config.bot.id,
-  MicrosoftAppPassword: config.bot.secret,
-  MicrosoftAppType: "MultiTenant",
+  MicrosoftAppType: "UserAssignedMSI",
+  MicrosoftAppId: config.azureClientId,
+  MicrosoftAppTenantId: config.azureTenantId,
 });
 
 const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
