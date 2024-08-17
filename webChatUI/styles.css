@@ -1,0 +1,70 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", sans-serif;
+  background: #333; /* ダーク背景色 */
+  color: #e0e0e0; /* 明るい文字色 */
+}
+
+/* タイトルバーのスタイル */
+#titlebar {
+  background-color: #4caf50; /* グリーンのタイトルバー */
+  color: #fff;
+  padding: 15px 20px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  border-bottom: 1px solid #333; /* タイトルバーのボーダー */
+}
+
+#webchat-container {
+  height: calc(100% - 60px); /* タイトルバーの高さを引いた高さ */
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end; /* メッセージを下に寄せる */
+}
+
+#webchat {
+  height: 100%;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* シャドウ効果 */
+  background: #2c2c2c; /* ダークグレー背景 */
+  transition: transform 0.3s ease; /* スムーズなアニメーション */
+  transform: scale(0.98);
+}
+
+#webchat:hover {
+  transform: scale(1); /* ホバー時の拡大効果 */
+}
+
+/* スマホ向けのスタイル */
+@media screen and (max-width: 767px) {
+  #titlebar {
+    font-size: 20px;
+    padding: 12px;
+  }
+
+  #webchat-container {
+    height: calc(100% - 70px); /* スマホのために調整した高さ */
+  }
+
+  .webchat__bubble {
+    font-size: 16px;
+  }
+
+  .webchat__send-box__textarea {
+    font-size: 16px;
+  }
+
+  .webchat__send-box__button {
+    padding: 10px;
+  }
+}

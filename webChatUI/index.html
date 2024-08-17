@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      crossorigin="anonymous"
+      src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"
+    ></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="getToken.js"></script>
+  </head>
+  <body>
+    <div id="titlebar">AI Bot (beta)</div>
+    <div id="webchat-container">
+      <div id="webchat" role="main"></div>
+    </div>
+    <script>
+      (async function initializeWebChat() {
+        // ユーザー名の入力
+        const userName =
+          (await prompt("(任意)ユーザー名を入力してください。")) ||
+          "Web Chat User";
+
+        // トークン取得
+        const token = await getToken(userName);
+
+        // チャット画面のデザイン
+        const styleSet = window.WebChat.createStyleSet({
+          bubbleBackground: "rgba(0, 0, 255, .1)",
+          bubbleFromUserBackground: "rgba(0, 255, 0, .1)",
+          // backgroundColor: "paleturquoise",
+        });
+
+        styleSet.textContent = {
+          ...styleSet.textContent,
+          // fontFamily: "'Comic Sans MS', 'Arial', sans-serif",
+          // fontWeight: "bold",
+        };
+
+        const avatarOptions = {
+          botAvatarImage: "image/botAvatarImage.png",
+          botAvatarInitials: "Bot",
+          userAvatarImage: "image/userAvatarImage.png",
+          userAvatarInitials: userName[0],
+        };
+
+        window.WebChat.renderWebChat(
+          {
+            directLine: window.WebChat.createDirectLine({
+              token,
+            }),
+            username: userName,
+            locale: "ja-JP",
+            styleSet,
+            styleOptions: avatarOptions,
+          },
+          document.getElementById("webchat")
+        );
+
+        document.querySelector("#webchat > *").focus();
+      })().catch((err) => console.error(err));
+    </script>
+  </body>
+</html>
