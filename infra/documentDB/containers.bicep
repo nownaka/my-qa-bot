@@ -13,10 +13,12 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
     resource: {
       id: containerName
       partitionKey: {
-        kind: 'Hash'
+        kind: 'MultiHash'
         paths: [
           '/userId'
+          '/conversationId'
         ]
+        version: 2
       }
     }
   }
