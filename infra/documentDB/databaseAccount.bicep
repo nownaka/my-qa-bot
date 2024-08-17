@@ -9,6 +9,7 @@ param roleAssignmentConfigs {
   principalId: string
   roleDefinitionId: string
 }[] = []
+param scope string = '/'
 
 /*============================================================================
   Resources
@@ -23,12 +24,13 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [ for config in roleAssignmentConfigs: {
+resource roleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-05-15' = [ for config in roleAssignmentConfigs: {
   name: guid(config.principalId, config.roleDefinitionId, resourceGroup().id)
-  scope: databaseAccount
+  parent: databaseAccount
   properties: {
     principalId: config.principalId
-    roleDefinitionId: config.roleDefinitionId
+    roleDefinitionId: '/${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DocumentDB/databaseAccounts/${name}/sqlRoleDefinitions/${config.roleDefinitionId}'
+    scope: databaseAccount.id
   }
 }]
 

@@ -55,7 +55,7 @@ param storageAccountName string = 'st${systemName}${environment}${suffix}'
   Variables
 ============================================================================*/
 var role = {
-  CosmosDBBuiltInDataContributor: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000002'
+  cosmosDBBuiltInDataContributor: '00000000-0000-0000-0000-000000000002'
 }
 
 /*============================================================================
@@ -113,7 +113,7 @@ module webApp './appService/webApp.bicep' = {
         value: listkeys(resourceId('Microsoft.DocumentDB/databaseAccounts', databaseAccountName), '2024-05-15').primaryMasterKey
       }
       {
-        name: 'COSMOSDB_CONTAINER_NAME_CHAT'
+        name: 'COSMOSDB_CONTAINER_NAME'
         value: containerNames[0]
       }
     ]
@@ -153,7 +153,7 @@ module databaseAccount 'documentDB/databaseAccount.bicep' = {
     roleAssignmentConfigs: [
       {
         principalId: userAssignedIdentity.outputs.principalId
-        roleDefinitionId: role.CosmosDBBuiltInDataContributor
+        roleDefinitionId: role.cosmosDBBuiltInDataContributor
       }
     ]
   }
