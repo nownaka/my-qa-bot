@@ -24,4 +24,7 @@ export const config = {
     containerName: checkEnvValue("COSMOSDB_CONTAINER_NAME"),
     includesRecords: Number(process.env.COSMOSDB_INCLUDE_CHAT_RECORDS) || 6,
   },
+  prompt: {
+    welcome: process.env.WELCOME_MESSAGE,
+  },
 };

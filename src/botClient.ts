@@ -26,6 +26,18 @@ export class BotClient extends ActivityHandler {
       config.cosmosDB.containerName
     );
     this.onMessage(this.generateAnswer);
+
+    this.onMembersAdded(async (context, next) => {
+      const membersAdded = context.activity.membersAdded || [];
+      const welcomeMessage = config.prompt.welcome;
+      for (let cnt = 0; cnt < membersAdded.length; cnt++) {
+        if (membersAdded[cnt].id && welcomeMessage) {
+          await context.sendActivity(welcomeMessage);
+          break;
+        }
+      }
+      await next();
+    });
   }
 
   private generateAnswer: BotHandler = async (context, next) => {
