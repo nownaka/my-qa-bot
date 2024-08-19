@@ -18,6 +18,7 @@ param webAppName string = 'app-${systemName}-${suffix}'
 @secure()
 param openAIApiKey string
 param openAIChatModel string
+param welcomeMessage string?
 
 // bot service
 param botName string = 'bot-${systemName}-${environment}-${suffix}'
@@ -112,6 +113,10 @@ module webApp './appService/webApp.bicep' = {
       {
         name: 'AZURE_TENANT_ID'
         value: userAssignedIdentity.outputs.tenantId
+      }
+      {
+        name: 'WELCOME_MESSAGE'
+        value: welcomeMessage
       }
     ]
   }
