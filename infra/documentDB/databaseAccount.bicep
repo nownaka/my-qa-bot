@@ -1,20 +1,23 @@
 /*============================================================================
   Parameters
 ============================================================================*/
+param isExsinting bool = false
 param location string
 param name string
 param isEnabledFreeTier bool
 param locations array
-param roleAssignmentConfigs {
-  principalId: string
-  roleDefinitionId: string
-}[] = []
-param scope string = '/'
 
 /*============================================================================
   Resources
 ============================================================================*/
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
+/* exsisting */
+resource databaseAccountExisting 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing =  if(isExsinting) {
+  name: name
+  scope: resourceGroup()
+}
+
+/* new */
+resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = if(!isExsinting){
   location: location
   name: name
   properties: {
@@ -24,17 +27,8 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
   }
 }
 
-resource roleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-05-15' = [ for config in roleAssignmentConfigs: {
-  name: guid(config.principalId, config.roleDefinitionId, resourceGroup().id)
-  parent: databaseAccount
-  properties: {
-    principalId: config.principalId
-    roleDefinitionId: '/${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DocumentDB/databaseAccounts/${name}/sqlRoleDefinitions/${config.roleDefinitionId}'
-    scope: databaseAccount.id
-  }
-}]
-
 /*============================================================================
   Outputs
 ============================================================================*/
-output endpoint string = databaseAccount.properties.documentEndpoint
+output resourceName string = isExsinting ? databaseAccountExisting.name : databaseAccount.name
+output endpoint string = isExsinting ? databaseAccountExisting.properties.documentEndpoint : databaseAccount.properties.documentEndpoint

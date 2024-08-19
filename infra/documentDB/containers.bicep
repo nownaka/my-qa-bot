@@ -1,13 +1,22 @@
 /*============================================================================
   Parameters
 ============================================================================*/
+param isExsisting bool = false
 param databaseName string
 param containerName string
 
 /*============================================================================
   Resources
 ============================================================================*/
-resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15' = {
+/* exsisting */
+resource containerExsisting 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15' existing = if(isExsisting){
+  name: '${databaseName}/${containerName}'
+  scope: resourceGroup()
+}
+
+
+/* new */
+resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15' = if(!isExsisting){
   name: '${databaseName}/${containerName}'
   properties: {
     resource: {
@@ -27,4 +36,4 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
 /*============================================================================
   Outputs
 ============================================================================*/
-output containerId string = container.properties.resource.id
+output containerId string = isExsisting ? containerExsisting.properties.resource.id : container.properties.resource.id
