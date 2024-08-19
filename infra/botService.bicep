@@ -4,12 +4,13 @@
 param location string = 'global'
 param name string
 param displayName string
-param botAppDomain string
+param botAppDomain string?
 param endpoint string = 'https://${botAppDomain}/api/messages'
 param msaAppId string
 param msaAppMSIResourceId string?
 param msaAppType string = 'UserAssignedMSI'
-param sku string
+@allowed(['F0','S1'])
+param sku string = 'F0'
 param msaAppTenantId string = tenant().tenantId
 
 /*============================================================================
