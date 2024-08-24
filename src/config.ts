@@ -8,7 +8,9 @@ const checkEnvValue = (envName: string): string => {
 };
 
 export const config = {
+  azureAppType: process.env.AZURE_APP_TYPE || "UserAssignedMSI",
   azureClientId: checkEnvValue("AZURE_CLIENT_ID"),
+  azureClientSecret: process.env.AZURE_CLIENT_SECRET,
   azureTenantId: checkEnvValue("AZURE_TENANT_ID"),
   openAI: {
     apiKey: checkEnvValue("OPENAI_API_KEY"),
