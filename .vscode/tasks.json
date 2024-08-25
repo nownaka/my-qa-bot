@@ -1,0 +1,50 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Azure上にコンポーネントを作成する(macOS)",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${SCRIPT_FILE_PATH}"],
+      "options": {
+        "env": {
+          "SCRIPT_FILE_PATH": ".vscode/scripts/macOS/deploymentTask.sh",
+          "ENVIRONMENT": "${input:environment}",
+          "ENVIRONMENT_FILE_PATH": "env/.env.${input:environment}",
+          "BICEP_FILE_PATH": "infra/main.bicep",
+          "BICEPPARAM_FILE_PATH": "infra/main.bicepparam"
+        }
+      },
+      "dependsOn": ["環境変数ファイルの確認(macOS)"],
+      "presentation": {
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "環境変数ファイルの確認(macOS)",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${SCRIPT_FILE_PATH}"],
+      "options": {
+        "env": {
+          "SCRIPT_FILE_PATH": ".vscode/scripts/macOS/preTask.sh",
+          "ENVIRONMENT": "${input:environment}",
+          "ENVIRONMENT_FILE_PATH": "env/.env.${input:environment}"
+        }
+      },
+      "presentation": {
+        "showReuseMessage": false
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "environment",
+      "type": "pickString",
+      "description": "Please select your build environment.",
+      "options": ["dev", "prod"]
+    }
+  ]
+}
