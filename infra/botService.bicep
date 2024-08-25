@@ -32,3 +32,10 @@ resource botService 'Microsoft.BotService/botServices@2021-03-01' = {
     name: sku
   }
 }
+
+/*============================================================================
+  Outputs
+============================================================================*/
+output name string = botService.name
+output displayName string = botService.properties.displayName
+output sku string = botService.sku.name

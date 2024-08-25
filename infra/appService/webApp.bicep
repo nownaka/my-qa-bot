@@ -32,4 +32,5 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
 /*============================================================================
   Outputs
 ============================================================================*/
+output name string = webApp.name
 output defaultHostName string = webApp.properties.defaultHostName

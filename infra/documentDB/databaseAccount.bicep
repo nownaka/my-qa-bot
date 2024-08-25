@@ -1,23 +1,25 @@
 /*============================================================================
   Parameters
 ============================================================================*/
-param isExsinting bool = false
+param isExsisting bool = false
 param location string
 param name string
 param isEnabledFreeTier bool
-param locations array
+param locations {
+  failoverPriority: int, locationName: string, isZoneRedundant: bool
+}[]
 
 /*============================================================================
   Resources
 ============================================================================*/
 /* exsisting */
-resource databaseAccountExisting 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing =  if(isExsinting) {
+resource databaseAccountExisting 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing =  if(isExsisting) {
   name: name
   scope: resourceGroup()
 }
 
 /* new */
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = if(!isExsinting){
+resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = if(!isExsisting){
   location: location
   name: name
   properties: {
@@ -30,5 +32,6 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = if
 /*============================================================================
   Outputs
 ============================================================================*/
-output resourceName string = isExsinting ? databaseAccountExisting.name : databaseAccount.name
-output endpoint string = isExsinting ? databaseAccountExisting.properties.documentEndpoint : databaseAccount.properties.documentEndpoint
+output resourceName string = isExsisting ? databaseAccountExisting.name : databaseAccount.name
+output endpoint string = isExsisting ? databaseAccountExisting.properties.documentEndpoint : databaseAccount.properties.documentEndpoint
+output enableFreeTier bool = isExsisting ? databaseAccountExisting.properties.enableFreeTier : databaseAccount.properties.enableFreeTier
