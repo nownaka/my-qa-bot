@@ -10,6 +10,7 @@ import { ChatDataClient } from "./chatDataClient";
 import { config } from "./config";
 import { ChatCompletionMessageParam } from "openai/resources";
 import { ChatHistoryParam } from "./types/chatHistoryParam";
+import { IndexDataParam } from "./types/indexDataParam";
 
 export class BotClient extends ActivityHandler {
   private aiClient: AIClient;
@@ -23,7 +24,10 @@ export class BotClient extends ActivityHandler {
       config.cosmosDB.endpoint,
       credential,
       config.cosmosDB.databaseName,
-      config.cosmosDB.containerName
+      {
+        chatHistory: config.cosmosDB.containerNames.chatHistory,
+        index: config.cosmosDB.containerNames.index,
+      }
     );
     this.onMessage(this.generateAnswer);
 
@@ -63,22 +67,44 @@ export class BotClient extends ActivityHandler {
       .replace(/\n|\r/g, "")
       .trim();
 
+    const queryEmbedding: number[] = (
+      await this.aiClient.createEmbeddingResponseData(
+        config.openAI.models.embedding,
+        prompt
+      )
+    ).embedding;
+
+    const information = await this.getInformationFromIndex(queryEmbedding);
+
     const requestMessage: ChatCompletionMessageParam = {
       role: "user",
       content: prompt,
     };
+
     const requestMessages: ChatCompletionMessageParam[] =
       this.generateRequestMessages(requestMessage, ...chatHistory);
 
     const chatCompletionChoice = await this.aiClient.createChatCompletionChoice(
       config.openAI.models.chat,
-      requestMessages
+      [
+        {
+          role: "system",
+          content: (config.prompt.system + information)
+            .replace(/\n|\r/g, "")
+            .trim(),
+        },
+        ...requestMessages,
+      ],
+      config.openAI.maxTokens,
+      config.openAI.temperature,
+      config.openAI.topP
     );
 
     const replyMessage = chatCompletionChoice.message;
     if (replyMessage.content) {
       await context.sendActivity(replyMessage.content);
     }
+
     messages.push(requestMessage, replyMessage);
 
     await this.chatDataClient.saveChat({
@@ -103,5 +129,39 @@ export class BotClient extends ActivityHandler {
     });
     requestMessages.push(message);
     return requestMessages;
+  }
+
+  private async getInformationFromIndex(
+    queryEmbedding: number[]
+  ): Promise<string> {
+    const similarityRanks: {
+      content: IndexDataParam;
+      similarityRank: number;
+    }[] = await this.chatDataClient.getSimilarityRanks(queryEmbedding);
+
+    let information = `
+    ## Provided Information: 
+    `;
+
+    if (similarityRanks.length > 0) {
+      const informationTemplate = `
+      - Question: <question>
+      - Answer: <answer>
+      - Reference URL: <reference>
+      `;
+      similarityRanks.forEach((item) => {
+        information += informationTemplate
+          .replace("<question>", item.content.question)
+          .replace("<answer>", item.content.answer)
+          .replace(
+            "<reference>",
+            item.content.urls ? item.content.urls?.join(", \n") : "none"
+          );
+      });
+    } else {
+      information += "none";
+    }
+
+    return information;
   }
 }

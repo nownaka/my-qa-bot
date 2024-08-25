@@ -2,6 +2,7 @@
   Parameters
 ============================================================================*/
 param location string = resourceGroup().location
+
 param systemName string
 param environment string
 param suffix string
@@ -16,8 +17,13 @@ param webAppName string = 'app-${systemName}-${suffix}'
 
 // app settings
 @secure()
-param openAIApiKey string
+param openAIApiKey string?
 param openAIChatModel string
+param openAIEmbeddingModel string
+param openAIAISetting string?
+param openAIMaxTokens string
+param openAITemperature string
+param openAITopP string
 param welcomeMessage string?
 
 // bot service
@@ -28,23 +34,21 @@ param botSku string = 'F0'
 // User Assigned Identity
 param userAssignedIdentityName string = 'id-${systemName}-${environment}-${suffix}'
 
-/* cosmosDB*/
+/* cosmosDB */
 // database account
+param isExsistingDataBaseAccount bool = false
+param databaseAccountResourceGroupName string?
 param databaseAccountName string = 'cosno-${systemName}-${environment}-${suffix}'
 param cosmosDBIsEnabledFreeTier bool = false
-param cosmosDBDatabaseAccountLocations array = [
-  {
-    failoverPriority: 0
-    locationName: location
-    isZoneRedundant: false
-  }
-]
 
 // databases
-param databaseName string = systemName
+param isExsistingDataBase bool = false
+param databaseName string = replace(systemName, '-', '')
 
 // containers
-param containerNames array = ['chatHistory']
+param isExistingContainer bool = false
+param chatHistoryContainerName string = 'ChatHistory'
+param indexContainerName string = 'Index'
 
 /* storage account */
 param storageAccountName string = 'st${systemName}${environment}${suffix}'
@@ -52,6 +56,8 @@ param storageAccountName string = 'st${systemName}${environment}${suffix}'
 /*============================================================================
   Variables
 ============================================================================*/
+var _databaseAccountResourceGroupName = empty(databaseAccountResourceGroupName) ? resourceGroup().name : databaseAccountResourceGroupName
+
 var role = {
   cosmosDBBuiltInDataContributor: '00000000-0000-0000-0000-000000000002'
 }
@@ -95,6 +101,26 @@ module webApp './appService/webApp.bicep' = {
         value: openAIChatModel
       }
       {
+        name: 'OPENAI_MODEL_EMBEDDING'
+        value: openAIEmbeddingModel
+      }
+      {
+        name: 'OPENAI_MAX_TOKENS'
+        value: openAIMaxTokens
+      }
+      {
+        name: 'OPENAI_TEMPERATURE'
+        value: openAITemperature
+      }
+      {
+        name: 'OPENAI_TOP_P'
+        value: openAITopP
+      }
+      {
+        name: 'OPENAI_AI_SETTING'
+        value: openAIAISetting
+      }
+      {
         name: 'COSMOSDB_ENDPOINT'
         value: databaseAccount.outputs.endpoint
       }
@@ -103,8 +129,12 @@ module webApp './appService/webApp.bicep' = {
         value: databaseName
       }
       {
-        name: 'COSMOSDB_CONTAINER_NAME'
-        value: containerNames[0]
+        name: 'COSMOSDB_CONTAINER_NAME_CHAT'
+        value: chatHistoryContainer.outputs.containerId
+      }
+      {
+        name: 'COSMOSDB_CONTAINER_NAME_INDEX'
+        value: indexContainer.outputs.containerId
       }
       {
         name: 'AZURE_CLIENT_ID'
@@ -150,43 +180,86 @@ module userAssignedIdentity 'userAssignedIdentity.bicep' = {
 module databaseAccount 'documentDB/databaseAccount.bicep' = {
   name: 'Deploy_${databaseAccountName}'
   params: {
+    isExsisting: isExsistingDataBaseAccount
     name: databaseAccountName
     location: location
     isEnabledFreeTier: cosmosDBIsEnabledFreeTier
-    locations: cosmosDBDatabaseAccountLocations
-    roleAssignmentConfigs: [
+    locations: [
       {
-        principalId: userAssignedIdentity.outputs.principalId
-        roleDefinitionId: role.cosmosDBBuiltInDataContributor
+        failoverPriority: 0
+        locationName: location
+        isZoneRedundant: false
       }
     ]
   }
+  scope: resourceGroup(_databaseAccountResourceGroupName)
+}
+
+module sqlRoleAssignments 'documentDB/sqlRoleAssignments.bicep' = {
+  name: 'Deploy_SqlRoleAssignments_${databaseAccountName}'
+  params: {
+    databaseAccountName: databaseAccountName
+    principalId: userAssignedIdentity.outputs.principalId
+    roleDefinitionId: role.cosmosDBBuiltInDataContributor
+  }
+  scope: resourceGroup(_databaseAccountResourceGroupName)
+  dependsOn: [
+    databaseAccount
+  ]
 }
 
 // databases
 module database 'documentDB/database.bicep' = {
   name: 'Deploy_${databaseAccountName}_${databaseName}'
   params: {
+    isExsisting: isExsistingDataBase
     databaseAccountName: databaseAccountName
     databaseName: databaseName
   }
+  scope: resourceGroup(_databaseAccountResourceGroupName)
   dependsOn: [
     databaseAccount
   ]
 }
 
-// container
-@batchSize(1)
-module containers 'documentDB/containers.bicep' = [for name in containerNames: {
-  name: 'Deploy_${databaseAccountName}_${databaseName}_${name}'
+// containers
+module chatHistoryContainer 'documentDB/containers.bicep' =  {
+  name: 'Deploy_${databaseAccountName}_${databaseName}_${chatHistoryContainerName}'
   params: {
-    containerName: name
+    isExsisting: isExistingContainer
+    containerName: chatHistoryContainerName
     databaseName: '${databaseAccountName}/${databaseName}'
+    partitionKey: {
+        kind: 'MultiHash'
+        paths: [
+          '/userId'
+          '/conversationId'
+        ]
+        version: 2
+      }
   }
+  scope: resourceGroup(databaseAccountResourceGroupName)
   dependsOn: [
     database
   ]
-}]
+}
+
+module indexContainer 'documentDB/containers.bicep' = {
+  name: 'Deploy_${databaseAccountName}_${databaseName}_${indexContainerName}'
+  params: {
+    isExsisting: isExistingContainer
+    containerName: indexContainerName
+    databaseName: '${databaseAccountName}/${databaseName}'
+    partitionKey: {
+      kind: 'Hash'
+      paths: ['/id']
+    }
+  }
+  scope: resourceGroup(databaseAccountResourceGroupName)
+  dependsOn: [
+    database
+  ]
+}
 
 /* storage*/
 module storageAccount 'storage/storageAccounts.bicep' = {
@@ -200,6 +273,30 @@ module storageAccount 'storage/storageAccounts.bicep' = {
 /*============================================================================
   Outputs
 ============================================================================*/
+output APP_SERVICE_PLAN_NAME string = appServicePlan.outputs.name
+output APP_SERVICE_PLAN_SKU string = appServicePlan.outputs.sku
+output APP_SERVICE_WEB_APP_NAME string = webApp.outputs.name
+output OPENAI_MODEL_CHAT string = openAIChatModel
+output OPENAI_MODEL_EMBEDDING string = openAIEmbeddingModel
+output OPENAI_MAX_TOKENS string = openAIMaxTokens
+output OPENAI_TEMPERATURE string = openAITemperature
+output OPENAI_TOP_P string = openAITopP
+
+output BOT_NAME string = botService.outputs.name
+output BOT_DISPLAY_NAME string = botService.outputs.displayName
+output BOT_SKU string = botService.outputs.sku
+
+output USER_ASSIGNED_IDENTITY_NAME string = userAssignedIdentity.outputs.name
 output AZURE_CLIENT_ID string = userAssignedIdentity.outputs.clientId
 output AZURE_TENANT_ID string = userAssignedIdentity.outputs.tenantId
+
+output IS_EXSISTING_DATABASE_ACCOUNT bool = isExsistingDataBaseAccount
+output COSMOSDB_DATABASE_ACCOUNT_RESOURCE_GROUP_NAME string = _databaseAccountResourceGroupName
+output COSMOSDB_IS_ENABLED_FREE_TIER bool = databaseAccount.outputs.enableFreeTier
+output IS_EXSISTING_DATABASE bool = isExsistingDataBase
+output COSMOSDB_DATABASE_NAME string = database.outputs.databaseId
+output IS_EXISTING_CONTAINER bool = isExistingContainer
+output COSMOSDB_CONTAINER_NAME_CHAT string = chatHistoryContainer.outputs.containerId
+output COSMOSDB_CONTAINER_NAME_INDEX string = indexContainer.outputs.containerId
+
 output STORAGE_ACCOUNT_NAME string = storageAccount.outputs.name

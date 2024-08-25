@@ -4,6 +4,7 @@
 param isExsisting bool = false
 param databaseName string
 param containerName string
+param partitionKey { kind: string , paths: string[], version: int? }
 
 /*============================================================================
   Resources
@@ -21,14 +22,7 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
   properties: {
     resource: {
       id: containerName
-      partitionKey: {
-        kind: 'MultiHash'
-        paths: [
-          '/userId'
-          '/conversationId'
-        ]
-        version: 2
-      }
+      partitionKey: partitionKey
     }
   }
 }

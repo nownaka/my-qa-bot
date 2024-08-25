@@ -133,8 +133,5 @@ dist
 # bicep
 /infra/parameters/
 
-# VsCode Folder
-.vscode
-
 # outDir
 lib

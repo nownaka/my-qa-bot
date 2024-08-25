@@ -24,3 +24,5 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   Outputs
 ============================================================================*/
 output id string = appServicePlan.id
+output name string = appServicePlan.name
+output sku string = appServicePlan.sku.name
