@@ -13,13 +13,19 @@ export class AIClient extends OpenAI {
 
   public async createChatCompletionChoice(
     model: string,
-    messages: ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[],
+    maxTokens: number,
+    temperature: number,
+    topP: number
   ): Promise<ChatCompletion.Choice> {
     try {
       const chatCompletion = await this.chat.completions
         .create({
           model: model,
           messages: messages,
+          max_tokens: maxTokens,
+          temperature: temperature,
+          top_p: topP,
           stream: false,
         })
         .then((res) => {
