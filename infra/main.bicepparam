@@ -12,14 +12,17 @@ param appServicePlanSku = empty(readEnvironmentVariable('APP_SERVICE_PLAN_SKU', 
 //* app service web app
 param webAppName = empty(readEnvironmentVariable('APP_SERVICE_WEB_APP_NAME', '')) ? 'app${systemName}${environment}${suffix}' : readEnvironmentVariable('APP_SERVICE_WEB_APP_NAME', '')
 //* app settings
-param openAIApiKey = empty(readEnvironmentVariable('OPENAI_API_KEY', '')) ? null : readEnvironmentVariable('OPENAI_API_KEY', '')
+param openAIApiKey = empty(readEnvironmentVariable('OPENAI_API_KEY', '')) ? '<your openai api key>' : readEnvironmentVariable('OPENAI_API_KEY', '')
 param openAIChatModel = empty(readEnvironmentVariable('OPENAI_MODEL_CHAT', '')) ? 'gpt-3.5-turbo-0125' : readEnvironmentVariable('OPENAI_MODEL_CHAT', '')
 param openAIEmbeddingModel = empty(readEnvironmentVariable('OPENAI_MODEL_EMBEDDING', '')) ? 'text-embedding-3-small' : readEnvironmentVariable('OPENAI_MODEL_EMBEDDING', '')
-param openAIAISetting = empty(readEnvironmentVariable('OPENAI_AI_SETTING', '')) ? null : readEnvironmentVariable('OPENAI_AI_SETTING', '')
 param openAIMaxTokens = empty(readEnvironmentVariable('OPENAI_MAX_TOKENS', '')) ? '1000' : readEnvironmentVariable('OPENAI_MAX_TOKENS', '')
 param openAITemperature = empty(readEnvironmentVariable('OPENAI_TEMPERATURE', '')) ? '1.0' : readEnvironmentVariable('OPENAI_TEMPERATURE', '')
 param openAITopP = empty(readEnvironmentVariable('OPENAI_TOP_P', '')) ? '1.0' : readEnvironmentVariable('OPENAI_TOP_P', '')
+param openAIAISetting = empty(readEnvironmentVariable('OPENAI_AI_SETTING', '')) ? null : readEnvironmentVariable('OPENAI_AI_SETTING', '')
 param welcomeMessage = empty(readEnvironmentVariable('WELCOME_MESSAGE', '')) ? null : readEnvironmentVariable('WELCOME_MESSAGE', '')
+param includeChatRecords = empty(readEnvironmentVariable('INCLUDE_CHAT_RECORDS', '')) ? '6' : readEnvironmentVariable('INCLUDE_CHAT_RECORDS', '')
+param includeIndexRecords = empty(readEnvironmentVariable('INCLUDE_INDEX_TOP_RECORDS', '')) ? '3' : readEnvironmentVariable('INCLUDE_INDEX_TOP_RECORDS', '')
+param similarityRank = empty(readEnvironmentVariable('SIMILARITY_RANK', '')) ? '0.5' : readEnvironmentVariable('SIMILARITY_RANK', '')
 
 /** bot service **/
 param botName = empty(readEnvironmentVariable('BOT_NAME', '')) ? 'bot${systemName}${environment}${suffix}' : readEnvironmentVariable('BOT_NAME', '')

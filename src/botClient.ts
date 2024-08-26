@@ -54,7 +54,7 @@ export class BotClient extends ActivityHandler {
     const chatHistory: readonly ChatHistoryParam[] =
       await this.chatDataClient.getChatHistory(
         userId,
-        config.cosmosDB.includesRecords
+        config.cosmosDB.includesRecords.chat
       );
 
     const messages: ChatCompletionMessageParam[] = [];
@@ -137,7 +137,11 @@ export class BotClient extends ActivityHandler {
     const similarityRanks: {
       content: IndexDataParam;
       similarityRank: number;
-    }[] = await this.chatDataClient.getSimilarityRanks(queryEmbedding);
+    }[] = await this.chatDataClient.getSimilarityRanks(
+      queryEmbedding,
+      config.cosmosDB.similarityRank,
+      config.cosmosDB.includesRecords.index
+    );
 
     let information = `
     ## Provided Information: 

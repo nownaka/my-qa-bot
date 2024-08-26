@@ -82,7 +82,11 @@ export class ChatDataClient extends CosmosClient {
     return dotProduct / (magnitudeA * magnitudeB);
   }
 
-  public async getSimilarityRanks(queryEmbedding: number[]) {
+  public async getSimilarityRanks(
+    queryEmbedding: number[],
+    rank: number,
+    topRecords: number
+  ) {
     let similarityRanks: {
       content: IndexDataParam;
       similarityRank: number;
@@ -103,10 +107,10 @@ export class ChatDataClient extends CosmosClient {
           return rhs.similarityRank - lhs.similarityRank;
         });
         similarityRanks = similarityRanks.filter((item) => {
-          return item.similarityRank > 0.5;
+          return item.similarityRank >= rank;
         });
       }
     }
-    return similarityRanks.slice(0, 2);
+    return similarityRanks.slice(0, topRecords);
   }
 }

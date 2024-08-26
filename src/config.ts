@@ -29,7 +29,11 @@ export const config = {
       chatHistory: checkEnvValue("COSMOSDB_CONTAINER_NAME_CHAT"),
       index: checkEnvValue("COSMOSDB_CONTAINER_NAME_INDEX"),
     },
-    includesRecords: Number(process.env.COSMOSDB_INCLUDE_CHAT_RECORDS) || 6,
+    includesRecords: {
+      chat: Number(process.env.INCLUDE_CHAT_RECORDS) || 6,
+      index: Number(process.env.INCLUDE_INDEX_TOP_RECORDS) || 3,
+    },
+    similarityRank: Number(process.env.SIMILARITY_RANK) || 0.5,
   },
   prompt: {
     welcome: process.env.WELCOME_MESSAGE,
