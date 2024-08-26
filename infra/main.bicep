@@ -17,14 +17,17 @@ param webAppName string = 'app-${systemName}-${suffix}'
 
 // app settings
 @secure()
-param openAIApiKey string?
+param openAIApiKey string
 param openAIChatModel string
 param openAIEmbeddingModel string
+param openAIMaxTokens string?
+param openAITemperature string?
+param openAITopP string?
 param openAIAISetting string?
-param openAIMaxTokens string
-param openAITemperature string
-param openAITopP string
 param welcomeMessage string?
+param includeChatRecords string?
+param includeIndexRecords string?
+param similarityRank string?
 
 // bot service
 param botName string = 'bot-${systemName}-${environment}-${suffix}'
@@ -147,6 +150,18 @@ module webApp './appService/webApp.bicep' = {
       {
         name: 'WELCOME_MESSAGE'
         value: welcomeMessage
+      }
+      {
+        name: 'INCLUDE_CHAT_RECORDS'
+        value: includeChatRecords
+      }
+      {
+        name: 'INCLUDE_INDEX_TOP_RECORDS'
+        value: includeIndexRecords
+      }
+      {
+        name: 'SIMILARITY_RANK'
+        value: similarityRank
       }
     ]
   }

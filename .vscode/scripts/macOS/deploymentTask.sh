@@ -39,7 +39,7 @@ az bot directline show \
 tee .temp/directline.json
 
 # JSON ファイルから DirectLine シークレットを取得し出力する
-jq -r '.properties.properties.extensionKey1 as $key1 | .properties.properties.extensionKey2 as $key2 | "BOT_DIRECTLINE_SECRET=\($key1)"' .temp/directline.json | \
+jq -r '.properties.properties.sites[] | "BOT_DIRECTLINE_SECRET=\(.key)"' .temp/directline.json | \
 while IFS='=' read -r key value; do
   if grep -q "^BOT_DIRECTLINE_SECRET=" "${ENVIRONMENT_FILE_PATH}"; then
     sed -i '' "s/^BOT_DIRECTLINE_SECRET=.*/BOT_DIRECTLINE_SECRET=${value}/" "${ENVIRONMENT_FILE_PATH}"
