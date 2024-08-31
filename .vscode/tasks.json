@@ -36,6 +36,36 @@
       "presentation": {
         "showReuseMessage": false
       }
+    },
+    {
+      "label": "アプリをデプロイする(macOS)",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${SCRIPT_FILE_PATH}"],
+      "options": {
+        "env": {
+          "SCRIPT_FILE_PATH": ".vscode/scripts/macOS/appDeploymentTask.sh",
+          "ENVIRONMENT": "${input:environment}",
+          "ENVIRONMENT_FILE_PATH": "env/.env.${input:environment}"
+        }
+      },
+      "dependsOn": ["ローカルビルド"],
+      "presentation": {
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "ローカルビルド",
+      "type": "shell",
+      "command": "npm install && npm run build",
+      "options": {
+        "env": {
+          "ENVIRONMENT": "${input:environment}"
+        }
+      },
+      "presentation": {
+        "showReuseMessage": false
+      }
     }
   ],
   "inputs": [
