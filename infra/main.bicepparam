@@ -1,6 +1,9 @@
 using 'main.bicep'
 
 /** Required **/
+param openAIApiKey = empty(readEnvironmentVariable('OPENAI_API_KEY', '')) ? '<your openai api key>' : readEnvironmentVariable('OPENAI_API_KEY', '')
+
+/** Recommended **/
 param systemName = empty(readEnvironmentVariable('SYSTEM_NAME', '')) ? '' : '-${readEnvironmentVariable('SYSTEM_NAME', '')}'
 param environment = empty(readEnvironmentVariable('ENVIRONMENT', '')) ? '' : '-${readEnvironmentVariable('ENVIRONMENT', '')}'
 param suffix = empty(readEnvironmentVariable('SUFFIX', '')) ? '' : '-${readEnvironmentVariable('SUFFIX', '')}'
@@ -12,7 +15,6 @@ param appServicePlanSku = empty(readEnvironmentVariable('APP_SERVICE_PLAN_SKU', 
 //* app service web app
 param webAppName = empty(readEnvironmentVariable('APP_SERVICE_WEB_APP_NAME', '')) ? 'app${systemName}${environment}${suffix}' : readEnvironmentVariable('APP_SERVICE_WEB_APP_NAME', '')
 //* app settings
-param openAIApiKey = empty(readEnvironmentVariable('OPENAI_API_KEY', '')) ? '<your openai api key>' : readEnvironmentVariable('OPENAI_API_KEY', '')
 param openAIChatModel = empty(readEnvironmentVariable('OPENAI_MODEL_CHAT', '')) ? 'gpt-3.5-turbo-0125' : readEnvironmentVariable('OPENAI_MODEL_CHAT', '')
 param openAIEmbeddingModel = empty(readEnvironmentVariable('OPENAI_MODEL_EMBEDDING', '')) ? 'text-embedding-3-small' : readEnvironmentVariable('OPENAI_MODEL_EMBEDDING', '')
 param openAIMaxTokens = empty(readEnvironmentVariable('OPENAI_MAX_TOKENS', '')) ? '1000' : readEnvironmentVariable('OPENAI_MAX_TOKENS', '')
