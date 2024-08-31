@@ -296,6 +296,9 @@ output OPENAI_MODEL_EMBEDDING string = openAIEmbeddingModel
 output OPENAI_MAX_TOKENS string = openAIMaxTokens
 output OPENAI_TEMPERATURE string = openAITemperature
 output OPENAI_TOP_P string = openAITopP
+output INCLUDE_CHAT_RECORDS string = includeChatRecords
+output INCLUDE_INDEX_TOP_RECORDS string = includeIndexRecords
+output SIMILARITY_RANK string = similarityRank
 
 output BOT_NAME string = botService.outputs.name
 output BOT_DISPLAY_NAME string = botService.outputs.displayName
