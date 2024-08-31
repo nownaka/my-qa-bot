@@ -2,8 +2,14 @@
 
 # 環境変数ファイルが存在しない場合に作成
 if [ ! -f "$ENVIRONMENT_FILE_PATH" ]; then
-    touch "$ENVIRONMENT_FILE_PATH"
-    echo "## ${ENVIRONMENT} environment variables" >> "$ENVIRONMENT_FILE_PATH"
+    # touch "$ENVIRONMENT_FILE_PATH"
+    # echo "## ${ENVIRONMENT} environment variables" >> "$ENVIRONMENT_FILE_PATH"
+    if [ -f "env/.env" ]; then
+        cp "env/.env" "$ENVIRONMENT_FILE_PATH"
+    else
+        echo "env/.env が見つかりません。"
+        exit 1
+    fi
 fi
 
 # 環境変数をロード

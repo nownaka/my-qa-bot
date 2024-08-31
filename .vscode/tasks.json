@@ -17,13 +17,12 @@
           "BICEPPARAM_FILE_PATH": "infra/main.bicepparam"
         }
       },
-      "dependsOn": ["環境変数ファイルの確認(macOS)"],
       "presentation": {
         "showReuseMessage": false
       }
     },
     {
-      "label": "環境変数ファイルの確認(macOS)",
+      "label": "環境変数を設定する(macOS)",
       "type": "shell",
       "command": "bash",
       "args": ["${SCRIPT_FILE_PATH}"],

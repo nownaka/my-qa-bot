@@ -23,6 +23,9 @@ jq -r '.properties.outputs | to_entries | map("\(.key | ascii_upcase)=\(.value.v
     fi
 done
 
+# 更新した環境変数をロード
+export $(grep -v '^#' ${ENVIRONMENT_FILE_PATH} | xargs)
+
 # Azure Storage の静的ウェブサイト機能を有効化する
 az storage blob service-properties update \
   --account-name ${STORAGE_ACCOUNT_NAME} \
