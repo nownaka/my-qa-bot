@@ -93,7 +93,8 @@ export class ChatDataClient extends CosmosClient {
     }[] = [];
     if (!this.index) {
       await this.getIndex();
-    } else {
+    }
+    if (this.index) {
       for (const element of this.index) {
         const similarityRank: number = this.getCosineSimilarity(
           queryEmbedding,
