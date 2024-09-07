@@ -67,7 +67,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: $WEB_APP_NAME
+          app-name: ${{ vars.WEB_APP_NAME }}
           slot-name: 'Production'
           package: .
           
