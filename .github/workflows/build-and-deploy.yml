@@ -1,17 +1,19 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - app-myqabot-dev-001
+name: Build and deploy Node.js app to Azure Web App
 
 on:
   push:
     branches:
+      - main
       - develop
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'develop' && 'Development'}}
 
     steps:
       - uses: actions/checkout@v4
@@ -28,19 +30,19 @@ jobs:
           npm run test --if-present
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip -r deployment.zip src lib node_modules package-lock.json package.json tsconfig.json
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: release.zip
+          path: deployment.zip
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'Development'
+      name: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'develop' && 'Development'}}
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
@@ -52,7 +54,7 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
+        run: unzip deployment.zip
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -65,7 +67,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'app-myqabot-dev-001'
+          app-name: $WEB_APP_NAME
           slot-name: 'Production'
           package: .
           
