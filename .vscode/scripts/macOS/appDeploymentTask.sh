@@ -1,4 +1,4 @@
-# 環境変数をロード
+# env/.env.* から環境変数を読み込む
 export $(grep -v '^#' ${ENVIRONMENT_FILE_PATH} | xargs)
 
 # .deployment ディレクトリを作成
@@ -13,7 +13,7 @@ az webapp config appsettings set \
     --name $APP_SERVICE_WEB_APP_NAME \
     --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
 
-# デプロイ
+# アプリデプロイ
 az webapp deploy \
     --resource-group $RESOURCE_GROUP_NAME \
     --name $APP_SERVICE_WEB_APP_NAME \

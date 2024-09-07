@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# 環境変数をロード
-export $(grep -v '^#' ${ENVIRONMENT_FILE_PATH} | xargs)
+# env/.env.* から環境変数を読み込む
+export $(grep -v '^#' ${ENVIRONMENT_FILE_PATH} | xargs )
 
 # .temp ディレクトリを作成
 mkdir -p .temp
@@ -14,13 +14,15 @@ az deployment group create \
   --parameters ${BICEPPARAM_FILE_PATH} \
   --output json | tee .temp/outputs.json
 
-# JSON ファイルから環境変数を抽出し、指定した.envファイルに設定または更新する
+# デプロイ結果から環境変数を更新する
 jq -r '.properties.outputs | to_entries | map("\(.key | ascii_upcase)=\(.value.value)") | .[]' .temp/outputs.json | while IFS='=' read -r key value; do
-    if grep -q "^${key}=" "${ENVIRONMENT_FILE_PATH}"; then
-        sed -i '' "s/^${key}=.*/${key}=${value}/" "${ENVIRONMENT_FILE_PATH}"
-    else
-        echo "${key}=${value}" >> "${ENVIRONMENT_FILE_PATH}"
-    fi
+  if grep -q "^${key}=" "${ENVIRONMENT_FILE_PATH}"; then
+    # 定義済みの場合：更新
+      sed -i '' "s/^${key}=.*/${key}=${value}/" "${ENVIRONMENT_FILE_PATH}"
+  else
+    # 未定義の場合：追加
+      echo "${key}=${value}" >> "${ENVIRONMENT_FILE_PATH}"
+  fi
 done
 
 # Azure Storage の静的ウェブサイト機能を有効化する
@@ -32,25 +34,28 @@ az storage blob service-properties update \
   --index-document index.html \
   --auth-mode login
 
-# Azure Bot Service の情報を取得
+# Azure Bot Service DirectLine の情報を取得
+export $( grep "^BOT_NAME=" "${ENVIRONMENT_FILE_PATH}" )
 az bot directline show \
   --name ${BOT_NAME} \
   --resource-group ${RESOURCE_GROUP_NAME} \
   --with-secrets true | \
 tee .temp/directline.json
 
-# JSON ファイルから DirectLine シークレットを取得し出力する
+# DirectLine シークレットを取得し出力する
 jq -r '.properties.properties.sites[] | "BOT_DIRECTLINE_SECRET=\(.key)"' .temp/directline.json | \
 while IFS='=' read -r key value; do
   if grep -q "^BOT_DIRECTLINE_SECRET=" "${ENVIRONMENT_FILE_PATH}"; then
+    # 定義済みの場合：更新
     sed -i '' "s/^BOT_DIRECTLINE_SECRET=.*/BOT_DIRECTLINE_SECRET=${value}/" "${ENVIRONMENT_FILE_PATH}"
   else
-    echo "${key}=${value}" >> "${ENVIRONMENT_FILE_PATH}"
+    # 未定義の場合：追加
+    echo "BOT_DIRECTLINE_SECRET=${value}" >> "${ENVIRONMENT_FILE_PATH}"
   fi
+  export BOT_DIRECTLINE_SECRET=${value}
 done
 
 # webChatUI の getToken.js に DirectLine シークレット情報を出力する
-export $(grep "^BOT_DIRECTLINE_SECRET=" "${ENVIRONMENT_FILE_PATH}" | xargs)
 sed -i '' "s/<your direct line secret>/${BOT_DIRECTLINE_SECRET}/g" "webChatUI/getToken.js"
 
 # Azure Blob ファイルをアップロードするための SAS を取得する
@@ -66,7 +71,6 @@ SAS_TOKEN=$(az storage container generate-sas \
 LOCAL_PATH=webChatUI
 find $LOCAL_PATH -type f ! -name '.DS_Store' | while read -r FILE; do
     BLOB_NAME="${FILE#$LOCAL_PATH/}"
-    echo $BLOB_NAME
     az storage blob upload \
       --account-name ${STORAGE_ACCOUNT_NAME} \
       --container-name \$web \
