@@ -22,6 +22,24 @@
       }
     },
     {
+      "label": "Azure上にコンポーネントを作成する(windows)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-File", "$env:SCRIPT_FILE_PATH"],
+      "options": {
+        "env": {
+          "SCRIPT_FILE_PATH": "${workspaceFolder}\\.vscode\\scripts\\windows\\deploymentTask.ps1",
+          "ENVIRONMENT": "${input:environment}",
+          "ENVIRONMENT_FILE_PATH": "${workspaceFolder}\\env\\.env.${input:environment}",
+          "BICEP_FILE_PATH": "${workspaceFolder}\\infra\\main.bicep",
+          "BICEPPARAM_FILE_PATH": "${workspaceFolder}\\infra\\main.bicepparam"
+        }
+      },
+      "presentation": {
+        "showReuseMessage": false
+      }
+    },
+    {
       "label": "環境変数を設定する(macOS)",
       "type": "shell",
       "command": "bash",
@@ -38,6 +56,22 @@
       }
     },
     {
+      "label": "環境変数を設定する(windows)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-File", "$env:SCRIPT_FILE_PATH"],
+      "options": {
+        "env": {
+          "SCRIPT_FILE_PATH": "${workspaceFolder}\\.vscode\\scripts\\windows\\preTask.ps1",
+          "ENVIRONMENT": "${input:environment}",
+          "ENVIRONMENT_FILE_PATH": "${workspaceFolder}\\env\\.env.${input:environment}"
+        }
+      },
+      "presentation": {
+        "showReuseMessage": false
+      }
+    },
+    {
       "label": "アプリをデプロイする(macOS)",
       "type": "shell",
       "command": "bash",
@@ -47,6 +81,23 @@
           "SCRIPT_FILE_PATH": ".vscode/scripts/macOS/appDeploymentTask.sh",
           "ENVIRONMENT": "${input:environment}",
           "ENVIRONMENT_FILE_PATH": "env/.env.${input:environment}"
+        }
+      },
+      "dependsOn": ["ローカルビルド"],
+      "presentation": {
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "アプリをデプロイする(windows)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-File", "$env:SCRIPT_FILE_PATH"],
+      "options": {
+        "env": {
+          "SCRIPT_FILE_PATH": "${workspaceFolder}\\.vscode\\scripts\\windows\\appDeploymentTask.ps1",
+          "ENVIRONMENT": "${input:environment}",
+          "ENVIRONMENT_FILE_PATH": "${workspaceFolder}\\env\\.env.${input:environment}"
         }
       },
       "dependsOn": ["ローカルビルド"],
